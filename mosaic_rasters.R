@@ -23,6 +23,50 @@ writeRaster(tc_world, "data/raster/world/tc/treecover2000", format ="GTiff")
 rm(tc_world); rm(tc_r)
 gc()
 
+###########
+# NW
+files_tc <- list.files("data/raster/tc", full.names=TRUE, recursive=TRUE)
+files_tc_N <- files_tc[grepl("N_", files_tc)]
+files_tc_NW <- files_tc_N[grepl("W.tif", files_tc_N)]
+rast_list_NW <- lapply(1:length(files_tc_NW),
+                    function(x) {
+                      raster(files_tc_NW[x])
+                    })
+rast_list_NW$fun <- mean
+rast_mosaic_NW <- do.call(mosaic, rast_list_NW)
+# NE - error
+files_tc_NE <- files_tc_N[grepl("E.tif", files_tc_N)]
+rast_list_NE <- lapply(1:length(files_tc_NE),
+                       function(x) {
+                         raster(files_tc_NE[x])
+                       })
+rast_list_NE$fun <- mean
+rast_mosaic_NE <- do.call(mosaic, rast_list_NE)
+# SW
+files_tc_S <- files_tc[grepl("S_", files_tc)]
+files_tc_SW <- files_tc_S[grepl("W.tif", files_tc_S)]
+rast_list_SW <- lapply(1:length(files_tc_SW),
+                       function(x) {
+                         raster(files_tc_SW[x])
+                       })
+rast_list_SW$fun <- mean
+rast_mosaic_SW <- do.call(mosaic, rast_list_SW)
+# SE
+files_tc_SE <- files_tc_S[grepl("E.tif", files_tc_S)]
+rast_list_SE <- lapply(1:length(files_tc_SE),
+                       function(x) {
+                         raster(files_tc_SE[x])
+                       })
+rast_list_SE$fun <- mean
+rast_mosaic_SE <- do.call(mosaic, rast_list_SE)
+# World
+rast_mosaic <- mosaic(rast_mosaic_NW, rast_mosaic_NE, rast_mosaic_SW, rast_mosaic_SE, fun = mean)
+
+rast_mosaic %>% plot
+###########
+
+
+
 # Forest Loss
 cat('\n', "Forest Loss")
 files_fl <- list.files("data/raster/fl")
@@ -62,3 +106,13 @@ writeRaster(fl2010_world, "data/raster/world/fl2010/forestloss_2000_2010", forma
 cat('\n', "Saving")
 rm(tc_world); rm(tc_r)
 gc()
+
+
+files_tc <- list.files("data/raster/tfl2000", full.names=TRUE, recursive=TRUE)
+rast.list <- lapply(1:length(files_tc),
+                    function(x) {
+                      raster(files_tc[x])
+                    })
+rast.list$fun <- mean
+rast.mosaic <- do.call(mosaic,rast.list)
+rast.mosaic %>% plot
